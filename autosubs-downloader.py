@@ -5,7 +5,7 @@ import urllib
 import re
 import time
 
-def geturifile(serie,fansub,capitulo,size='720',otros_patrones=None):
+def getNyaTorrentsFile(serie,fansub,capitulo,size='720',otros_patrones=None):
   serie=serie.lower()
   page='http://www.nyaatorrents.org/?page=search&cat=0_0&filter=0&term='+serie.replace(' ','+')
   try:
@@ -33,10 +33,10 @@ def geturifile(serie,fansub,capitulo,size='720',otros_patrones=None):
 
 
 
-def waitfile(serie,fansub,capitulo,size='720',mkv=True):
+def waitfile(serie,fansub,capitulo,size='720',otros_patrones=None):
   while True:
     print 'Buscando capítulo...\r',
-    file=geturifile(serie,fansub,capitulo,size,mkv)
+    file=getNyaTorrentsFile(serie,fansub,capitulo,size,otros_patrones)
     if file:
       print 'ENCONTRADO "'+file[0]+'"'
       return file
