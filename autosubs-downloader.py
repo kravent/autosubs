@@ -1,7 +1,7 @@
-#!/usr/bin/env python3.1
+#!/usr/bin/env python2.6
 # -*- coding: utf-8 -*-
 import sys
-from urllib.request import urlopen
+import urllib
 import re
 import time
 
@@ -9,7 +9,7 @@ def geturifile(serie,fansub,capitulo,size='720',mkv=True):
   serie=serie.lower()
   page='http://www.nyaatorrents.org/?page=search&cat=0_0&filter=0&term='+serie.replace(' ','+')
   try:
-    file=urlopen(page)
+    file=urllib.urlopen(page)
     pagina=str(file.read())
     file.close()
     for line in re.findall('<td class="tlistname">.*?</td>',pagina):
@@ -25,17 +25,18 @@ def geturifile(serie,fansub,capitulo,size='720',mkv=True):
         else:
           return [name,url]
   except:
-    print('Error al acceder a la web',file=sys.stderr)
+    print >> sys.stderr, 'Error al acceder a la web'
+
 
 
 def waitfile(serie,fansub,capitulo,size='720',mkv=True):
   while True:
-    print('Buscando capítulo...',end="\r")
+    print 'Buscando capítulo...\r',
     file=geturifile(serie,fansub,capitulo,size,mkv)
     if file:
-      print('ENCONTRADO "',file[0],'"',sep='')
+      print 'ENCONTRADO "'+file[0]+'"'
       return file
-    print(time.strftime("%H:%M:%S", time.gmtime()),'-> LINK NO DISPONIBLE (esperando 10 min)',end="\r")
+    print time.strftime("%H:%M:%S", time.gmtime()),'-> LINK NO DISPONIBLE (esperando 10 min)\r',
     time.sleep(600)
 
 
