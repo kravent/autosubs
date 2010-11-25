@@ -22,7 +22,7 @@ def getNyaTorrentsFile(serie,fansub,capitulo,size='720',otros_patrones=None):
         if otros_patrones:
           valido=True
           for patron in otros_patrones:
-            if !re.search(patron,dname):
+            if not re.search(patron,dname):
               valido=False
           if valido:
             return [name,url]
@@ -35,14 +35,19 @@ def getNyaTorrentsFile(serie,fansub,capitulo,size='720',otros_patrones=None):
 
 def waitfile(serie,fansub,capitulo,size='720',otros_patrones=None):
   while True:
-    print 'Buscando capítulo...\r',
+    print 'Buscando capítulo...',
+    sys.stdout.flush()
     file=getNyaTorrentsFile(serie,fansub,capitulo,size,otros_patrones)
     if file:
       print 'ENCONTRADO "'+file[0]+'"'
       return file
-    print time.strftime("%H:%M:%S", time.gmtime()),'-> LINK NO DISPONIBLE (esperando 10 min)\r',
+    print 'LINK NO DISPONIBLE'
+    print time.strftime("%H:%M:%S", time.gmtime()),'-> (esperando 10 min)'
     time.sleep(600)
 
+
+
+def downloadtorrent()
 
 
 
