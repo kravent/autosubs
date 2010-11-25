@@ -5,7 +5,7 @@ from urllib.request import urlopen
 import re
 import time
 
-def geturifile(serie,fansub,capitulo,size='720',mkv=True):
+def geturifile(serie,fansub,capitulo,size='720',otros_patrones=None):
   serie=serie.lower()
   page='http://www.nyaatorrents.org/?page=search&cat=0_0&filter=0&term='+serie.replace(' ','+')
   try:
@@ -19,8 +19,12 @@ def geturifile(serie,fansub,capitulo,size='720',mkv=True):
       if (re.search('\['+fansub+'\]',dname) and re.search(serie,dname) and
           re.search('\D'+capitulo+'\D',dname) and
           (re.search(size+'p',dname) or re.search('x'+size,dname))):
-        if mkv:
-          if re.search('\.mkv',dname):
+        if otros_patrones:
+          valido=True
+          for patron in otros_patrones:
+            if !re.search(patron,dname):
+              valido=False
+          if valido:
             return [name,url]
         else:
           return [name,url]
