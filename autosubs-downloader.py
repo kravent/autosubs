@@ -70,9 +70,9 @@ def downloadtorrent(torrentfile,destino='./',puertos=[51413,51413]):
           sys.stdout.flush()
 
           time.sleep(1)
-  remove_torrent()
 
-  filesaved=h.torrent_info().name()
+  filesaved=info.name()
+  h.remove_torrent()
   print "\nGUARDADO: \"%s\"" % filesaved
   return filesaved
 
