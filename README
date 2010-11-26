@@ -1,5 +1,19 @@
-NECESITA: python 2.6, python-libtorrent
+DEPENDENCIAS
+------------
+
+Necesita: python 2.6, python-libtorrent
 
 Intalar dependencias en Ubuntu:
 $ sudo apt-get install python2.6 python-libtorrent
+
+
+INSTALAR
+--------
+
+$ sudo make install
+
+DESINSTALAR
+-----------
+
+$ sudo make uninstall
 
