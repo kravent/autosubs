@@ -48,6 +48,16 @@ def waitfile(serie,fansub,capitulo,size='720',otros_patrones=None):
     time.sleep(600)
 
 
+class TorrentProgress:
+  def __init__(self):
+    pass
+  def setProgress(self,progress,download_rate,upload_rate,num_peers):
+    print "\r%3.2f%% complete (down: %4.1f kb/s up: %4.1f kB/s peers: %3d)" % \
+          (progress * 100, download_rate / 1000, \
+          upload_rate / 1000, num_peers) ,#Coma final -> NO "\n"
+    sys.stdout.flush()
+
+
 
 def downloadtorrent(torrentfile,destino='./',puertos=[51413,51413]):
   print 'DESCARGANDO...'
@@ -61,15 +71,13 @@ def downloadtorrent(torrentfile,destino='./',puertos=[51413,51413]):
   info = libtorrent.torrent_info(e)
   h = ses.add_torrent(info, destino)
 
+  progreso=TorrentProgress()
   while (not h.is_seed()):
-          s = h.status()
-
-          print "\r%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d)" % \
-                  (s.progress * 100, s.download_rate / 1000, \
-                  s.upload_rate / 1000, s.num_peers) ,#Coma final -> NO "\n"
-          sys.stdout.flush()
-
-          time.sleep(1)
+    s = h.status()
+    progreso.setProgress(s.progress,s.download_rate,s.upload_rate,s.num_peers)
+    time.sleep(1)
+  s = h.status()
+  progreso.setProgress(s.progress,s.download_rate,s.upload_rate,s.num_peers)
 
   filesaved=info.name()
   ses.remove_torrent(h)
