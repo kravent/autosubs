@@ -72,13 +72,14 @@ def downloadtorrent(torrentfile,destino='./',puertos=[51413,51413]):
           time.sleep(1)
 
   filesaved=info.name()
-  h.remove_torrent()
+  ses.remove_torrent(h)
   print "\nGUARDADO: \"%s\"" % filesaved
   return filesaved
 
 
 
 if __name__ == '__main__':
+  """
   if len(sys.argv) < 4:
     print 'USO: autosubs-downloader.py serie fansub capitulo [resolucion]', \
         '[patron_regular1 patron_regular2 ...]'
@@ -91,3 +92,5 @@ if __name__ == '__main__':
     res = waitfile(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5:])
 
   downloadtorrent(res[1])
+  """
+  downloadtorrent('http://www.nyaatorrents.org/?page=download&tid=176003')
