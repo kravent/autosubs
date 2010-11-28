@@ -7,8 +7,8 @@ BINSOURCEDIR	=	./bin/
 MAINSOURCEDIR	=	./
 LIBSOURCEDIR	=	./lib/
 
-BINFILES	=	autosubs autosubs-downloader
-MAINFILES	=	autosubs.py autosubsDownloader.py
+BINFILES	=	autosubs autosubs-downloader autosubs-translate
+MAINFILES	=	autosubs.py autosubsDownloader.py autosubsTranslate.py
 LIBFILES	=	
 
 

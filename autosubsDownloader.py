@@ -146,7 +146,7 @@ if __name__ == '__main__':
   else:
     res = waitfile(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5:])
 
-  nombre=downloadtorrent(res[1])
-  mkv2raw(nombre,'[RAW]'+nombre)
-  mkv2ass(nombre,nombre+'.ass')
+  nombre = downloadtorrent(res[1])
+  mkv2raw(nombre, '[RAW] %s - %s (%sp).mkv' % (sys.argv[1],sys.argv[3],sys.argv[4]))
+  mkv2ass(nombre, sys.argv[3] + '-original.ass')
 
