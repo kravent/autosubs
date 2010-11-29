@@ -136,7 +136,7 @@ def mkv2ass(mkvfile,assfile):
 
 if __name__ == '__main__':
   if len(sys.argv) < 4:
-    print 'USO: autosubs-downloader.py serie fansub capitulo [resolucion]', \
+    print 'USO: autosubs-ownloader serie fansub capitulo [resolucion]', \
         '[patron_regular1 patron_regular2 ...]'
     exit(-1)
   elif len(sys.argv) == 4:
