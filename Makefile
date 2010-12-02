@@ -1,23 +1,17 @@
 .PHONY: install uninstall
 BINDIR	=	/usr/bin/
 MAINDIR	=	/opt/autosubs/
-LIBDIR	=	$(MAINDIR)lib/
 
 BINSOURCEDIR	=	./bin/
-MAINSOURCEDIR	=	./
-LIBSOURCEDIR	=	./lib/
+MAINSOURCEDIR	=	./src/
 
 BINFILES	=	autosubs autosubs-downloader autosubs-translate
-MAINFILES	=	autosubs.py autosubsDownloader.py autosubsTranslate.py
-LIBFILES	=	
 
 
 install:
 	mkdir -p $(MAINDIR)
-	mkdir -p $(LIBDIR)
 	$(foreach file, $(BINFILES), cp -p $(BINSOURCEDIR)$(file) $(BINDIR);)
-	$(foreach file, $(MAINFILES), cp -p $(MAINSOURCEDIR)$(file) $(MAINDIR);)
-	$(foreach file, $(LIBFILES), cp -p $(LIBSOURCEDIR)$(file) $(LIBDIR);)
+	cp -R -p $(MAINSOURCEDIR)* $(MAINDIR)
 	
 
 uninstall:

@@ -1,5 +1,5 @@
 #!/bin/bash
 
-/opt/autosubs/autosubsDownloader.py $@
+/opt/autosubs/autosubsDownloader.py "$@"
 
 exit $?
