@@ -8,7 +8,7 @@ import time
 import libtorrent
 import subprocess
 
-def getNyaTorrentsFile(serie, fansub, capitulo, size='720', otros_patrones=None):
+def getNyaTorrentsFile(serie, fansub, capitulo, size=None, otros_patrones=None):
   serie = serie.lower()
   page = 'http://www.nyaatorrents.org/?page=search&cat=0_0&filter=0&term='+serie.replace(' ','+')
   try:
@@ -21,7 +21,7 @@ def getNyaTorrentsFile(serie, fansub, capitulo, size='720', otros_patrones=None)
       url='http://www.nyaatorrents.org/?page=download&'+re.findall('tid=\d+',line)[0]
       if (re.search('\['+fansub+'\]',dname) and re.search(serie,dname) and
           re.search('\D'+capitulo+'\D',dname) and
-          (re.search(size+'p',dname) or re.search('x'+size,dname))):
+          ((not size) or re.search(size+'p',dname) or re.search('x'+size,dname))):
         if otros_patrones:
           valido = True
           for patron in otros_patrones:
@@ -136,15 +136,13 @@ def mkv2ass(mkvfile,assfile):
 
 if __name__ == '__main__':
   if len(sys.argv) < 4:
-    print 'USO: autosubs-ownloader serie fansub capitulo [resolucion]', \
+    print 'USO: autosubs-ownloader serie fansub capitulo', \
         '[patron_regular1 patron_regular2 ...]'
     exit(-1)
   elif len(sys.argv) == 4:
     res = waitfile(sys.argv[1],sys.argv[2],sys.argv[3])
-  elif len(sys.argv) == 5:
-    res = waitfile(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])
   else:
-    res = waitfile(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5:])
+    res = waitfile(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4:])
 
   nombre = downloadtorrent(res[1])
   mkv2raw(nombre, '[RAW] %s - %s (%sp).mkv' % (sys.argv[1],sys.argv[3],sys.argv[4]))
