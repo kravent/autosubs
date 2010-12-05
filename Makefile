@@ -5,7 +5,7 @@ MAINDIR	=	/opt/autosubs/
 BINSOURCEDIR	=	./bin/
 MAINSOURCEDIR	=	./src/
 
-BINFILES	=	autosubs autosubs-downloader autosubs-translate
+BINFILES	=	autosubs autosubs-downloader autosubs-translate autosubs-encode
 
 
 install:
