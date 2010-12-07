@@ -8,31 +8,33 @@ import time
 import libtorrent
 import subprocess
 
-def getNyaTorrentsFile(serie, fansub, capitulo, size=None, otros_patrones=None):
+def getNyaaTorrentsFile(serie, fansub, capitulo, size=None, otros_patrones=None):
   serie = serie.lower()
-  page = 'http://www.nyaatorrents.org/?page=search&cat=0_0&filter=0&term='+serie.replace(' ','+')
+  fansub = fansub.lower()
+  capitulo = capitulo.lower()
+  urlsearch = 'http://www.nyaatorrents.org/?page=search&cat=0_0&filter=0&term='+serie.replace(' ','+')
   try:
-    file = urllib.urlopen(page)
-    pagina = str(file.read())
-    file.close()
-    for line in re.findall('<td class="tlistname">.*?</td>',pagina):
-      name = re.sub('<.*?>','',line).strip()
-      dname = name.lower()
-      url='http://www.nyaatorrents.org/?page=download&'+re.findall('tid=\d+',line)[0]
-      if (re.search('\['+fansub+'\]',dname) and re.search(serie,dname) and
-          re.search('\D'+capitulo+'\D',dname) and
-          ((not size) or re.search(size+'p',dname) or re.search('x'+size,dname))):
-        if otros_patrones:
-          valido = True
-          for patron in otros_patrones:
-            if not re.search(patron,dname):
-              valido = False
-          if valido:
-            return [name,url]
-        else:
-          return [name,url]
+    f = urllib.urlopen(urlsearch)
+    pagina = str(f.read())
+    f.close()
   except:
-    print >> sys.stderr, 'Error al acceder a la web'
+    print >> sys.stderr, 'Error al acceder a "%s"' % urlsearch
+  for line in re.findall('<td class="tlistname">.*?</td>',pagina):
+    name = re.sub('<.*?>','',line).strip()
+    dname = name.lower()
+    url='http://www.nyaatorrents.org/?page=download&'+re.findall('tid=\d+',line)[0]
+    if (re.search('\['+fansub+'\]',dname) and re.search(serie,dname) and
+        re.search('\D'+capitulo+'\D',dname) and
+        ((not size) or re.search(size+'p',dname) or re.search('x'+size,dname))):
+      if otros_patrones:
+        valido = True
+        for patron in otros_patrones:
+          if not re.search(patron,dname):
+            valido = False
+        if valido:
+          return [name,url]
+      else:
+        return [name,url]
 
 
 
@@ -40,7 +42,7 @@ def waitfile(serie, fansub, capitulo, size='720', otros_patrones=None):
   while True:
     print 'Buscando capítulo...',
     sys.stdout.flush()
-    file=getNyaTorrentsFile(serie, fansub, capitulo, size, otros_patrones)
+    file=getNyaaTorrentsFile(serie, fansub, capitulo, size, otros_patrones)
     if file:
       print 'ENCONTRADO "'+file[0]+'"'
       return file
@@ -140,11 +142,11 @@ if __name__ == '__main__':
         '[patron_regular1 patron_regular2 ...]'
     exit(-1)
   elif len(sys.argv) == 4:
-    res = waitfile(sys.argv[1],sys.argv[2],sys.argv[3])
+    res = waitfile(sys.argv[1], sys.argv[2], sys.argv[3])
   else:
-    res = waitfile(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4:])
+    res = waitfile(sys.argv[1], sys.argv[2], sys.argv[3], None, sys.argv[4:])
 
   nombre = downloadtorrent(res[1])
-  mkv2raw(nombre, '[RAW] %s - %s (%sp).mkv' % (sys.argv[1],sys.argv[3],sys.argv[4]))
+  mkv2raw(nombre, '[RAW] %s - %s (%sp).mkv' % (sys.argv[1], sys.argv[3], sys.argv[4]))
   mkv2ass(nombre, sys.argv[3] + '-original.ass')
 
