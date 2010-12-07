@@ -38,7 +38,7 @@ def getNyaaTorrentsFile(serie, fansub, capitulo, size=None, otros_patrones=None)
 
 
 
-def waitfile(serie, fansub, capitulo, size='720', otros_patrones=None):
+def waitfile(serie, fansub, capitulo, size=None, otros_patrones=None):
   while True:
     print 'Buscando capítulo...',
     sys.stdout.flush()

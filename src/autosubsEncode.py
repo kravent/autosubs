@@ -58,6 +58,14 @@ def encodeAvidemuxScript(scriptfile, videofile, securex264=True):
   #  line = process.stdout.readline()
 
 
+
+def encodeAvidemux(videoOut, videoIn, exitsize, extension, \
+    assfile=None, resize=None, fps1000=None, securex264=True):
+  makeAvidemuxScript(videoOut+'.ps', videoIn, exitsize, extension, \
+    assfile, resize, fps1000)
+  encodeAvidemuxScript(videoOut+'.ps', videoOut, securex264)
+
+
 def mergeMkv(mkvfile, files):
   """
   mkvfile = output mkv file

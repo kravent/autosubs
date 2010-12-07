@@ -1,0 +1,36 @@
+#Crea un archivo con el siguiente contenido y guardalo en la carpeta del proyecto como autosubs.project
+#En primer lugar se declaran las variables. Las permitidas son las siguientes:
+serie=Nombre de la serie
+fansubIngles=Nombre del fansub
+size=Resolución de la raw (EJ:size=720)
+patrones=patrones de búsqueda separados por %%%
+fps=Fps de la raw en punto flotante (EJ:fps=23.976)
+fps1000=Fps de la raw x1000 en entero (EJ:fps1000=23976)
+langin=Idioma de la raw
+fansub=Nombre de tu fansub
+fansuburl=Url de tu fansub
+
+
+
+[Etiqueta]
+#En segundo lugar van las acciones, separadas por grupos identificadas con etiquetas como la anterior.
+mkDir #Crea el directorio para el capítulo
+waitAndDownload variable_donde_guardar_nombre_archivo_descargado
+extractRAW variable_videoIn variable_videoOut
+extractASS variable_videoOut variable_assOut
+translate variable_assIn variable_assOut
+encode contenedor videoOut videoIn exitSize assFile resize fps1000 securex264
+# contenedor = mp4 | avi
+# VideoOut,VideoIn = variable
+# exitSize = numero
+# assFile,fps1000 = variable | *   (* = valor por defecto)
+# resize = 1280x720 | *
+# securex264 = True | False
+mkvmerge variable_mkvFile variable_file1 variable_file2 ...
+systemPAUSE #esto realiza una pausa
+
+
+
+
+
+
