@@ -17,6 +17,7 @@ fansuburl=Url de tu fansub
 mkDir #Crea el directorio para el capítulo
 waitAndDownload variable_donde_guardar_nombre_archivo_descargado
 extractRAW variable_videoIn variable_videoOut
+# variable_fps = variable | *
 extractASS variable_videoOut variable_assOut
 translate variable_assIn variable_assOut
 encode contenedor videoOut videoIn exitSize assFile resize fps1000 securex264
