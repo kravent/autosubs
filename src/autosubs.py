@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys, os
+import re
 import autosubsDownloader
 import autosubsTranslate
 import autosubsEncode
@@ -30,15 +31,16 @@ class PharseError(Error):
     self.filee = filee
     self.nline = nline
     self.line = line
+    print self.__str__()
   def __str__(self):
-    return 'File %s:\n  Line %d: %s' % (filee, nline, line)
+    return '\n  Project source file:\n    Line %d: %s' % (self.nline, self.line)
 
 
 class ExecuteError(Error):
   def __init__(self, description):
     self.description = description
   def __str__(self):
-    return self.description
+    return '\n' + self.description
 
 
 class Project:
@@ -55,10 +57,7 @@ class Project:
         m = re.match('\[\s*(\w+)\s*\]',line).group(1)
         self.code[m] = []
         etiqueta = m
-        else:
-          print >> sys.stderr, 'ERROR en: "%s"' % line
-          print >> sys.stderr, 'La palabra clave \'%s\' no existe' % m
-      else:
+      elif line != '':
         if etiqueta:
           self.addCode(etiqueta, projectFile, nline, line)
         else:
@@ -75,18 +74,18 @@ class Project:
       raise PharseError(filee, nline, line)
 
   def addCode(self, etiqueta, filee, nline, line):
-    if isValidCode(line):
+    if self.isValidCode(line):
       self.code[etiqueta].append(line.split(' '))
     else:
       raise PharseError(filee, nline, line)
 
-  def isValidCode(line):
-    for exp in self.ALLOWED_CODES:
+  def isValidCode(self, line):
+    for exp in ALLOWED_CODES:
       if re.match(exp, line):
         return True
     return False
 
-  def getvar(var, default=''):
+  def getvar(self, var, default=''):
     """Si var=='*' o no existe en self.data devuelve default,
     y si no devuelve self.data[var]."""
     if var == '*' or (var != '' and not var in self.data):
@@ -96,15 +95,15 @@ class Project:
     else:
       raise ExecuteError('No existe la variable "%s"' % var)
 
-  def savevar(var, data):
+  def savevar(self, var, data):
     """Guarda data en la variable var de self.data"""
     self.data[var] = data
 
-  def execEtiqueta(etiqueta)
+  def execEtiqueta(self, etiqueta):
     for code in self.code[etiqueta]:
-      self.execCode(code):
+      self.execCode(code)
 
-  def execCode(code):
+  def execCode(self, code):
     if code[0] == 'mkDir': # mkDir
       if not self.capitulo in os.listdir('./'):
         os.mkdir(self.capitulo)
@@ -144,7 +143,7 @@ class Project:
           break
 
 
-  def ejectuta():
+  def ejectuta(self):
     while True:
       self.capitulo = raw_input('Nº del capítulo: ')
       if self.capitulo.isdigit():
@@ -167,7 +166,7 @@ class Project:
 
 
 
-if __file__ == '__main__':
+if __name__ == '__main__':
   f = os.path.join(os.path.abspath(os.getcwd()), FILEPROJECT_NAME)
   if not os.path.isfile(f):
     print >> sys.stderr, "No existe el archivo de proyecto '%s' en el directorio" % FILEPROJECT_NAME
