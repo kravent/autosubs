@@ -8,6 +8,7 @@ fps=Fps de la raw en punto flotante (EJ:fps=23.976)
 fps1000=Fps de la raw x1000 en entero (EJ:fps1000=23976)
 langin=Idioma de la raw
 fansub=Nombre de tu fansub
+fansubS=Siglas de tu fansub
 fansuburl=Url de tu fansub
 
 
@@ -20,6 +21,7 @@ extractRAW variable_videoIn variable_videoOut
 # variable_fps = variable | *
 extractASS variable_videoOut variable_assOut
 translate variable_assIn variable_assOut
+autotitle var_donde_guardar resolucion extension
 encode contenedor videoOut videoIn exitSize assFile resize fps1000 securex264
 # contenedor = mp4 | avi
 # VideoOut,VideoIn = variable

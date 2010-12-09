@@ -14,6 +14,7 @@ ALLOWED_CODES = [#TODO reg.exp. para los códigos permitidos en el archivo del p
     'extractRAW\s+\w+\s+\w+$',
     'extractASS\s+\w+\s+\w+$',
     'translate\s+\w+\s+\w+$',
+    'autotitle\s+\w+\s+\w+\s+\w+$',
     'encode\s+(mp4)|(avi)\s+\w+\s+\w+\s+\d+\s+(\w+)|(\*)\s+(\d+x\d+)|(\*)\s+(\w+)|(\*)\s+(True)|(False)$',
     'mkvmerge\s+\w+',
     'systemPAUSE$'
@@ -121,6 +122,10 @@ class Project:
     elif code[0] == 'translate': # translate
       autosubsTranslate.asstranslate(self.getvar(code[1]), self.getvar(code[2]), \
           self.getvar('langin', 'en'))
+    elif code[0] == 'autotitle': # autotitle
+      self.savevar(code[1], '[%s] %s - %s (%sp).%s' % (\
+          self.getvar('fansubS'), self.getvar('serie'), self.capitulo, \
+          code[2], code[3]))
     elif code[0] == 'encode': # encode
       resize =  self.getvar(code[6], None)
       if resize:
