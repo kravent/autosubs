@@ -16,7 +16,7 @@ ALLOWED_CODES = [#TODO reg.exp. para los códigos permitidos en el archivo del p
     'extractASS\s+\w+\s+\w+$',
     'translate\s+\w+\s+\w+$',
     'autotitle\s+\w+\s+\w+\s+\w+$',
-    'encode\s+(mp4)|(avi)\s+\w+\s+\w+\s+\d+\s+(\w+)|(\*)\s+(\d+x\d+)|(\*)\s+(\w+)|(\*)\s+(True)|(False)$',
+    'encode\s+((mp4)|(avi))\s+\w+\s+\w+\s+\d+\s+(\w+)|(\*)\s+(\d+x\d+)|(\*)\s+(\w+)|(\*)\s+(True)|(False)$',
     'mkvmerge\s+\w+',
     'systemPAUSE$'
     ]
@@ -47,7 +47,7 @@ class Project:
   def __init__(self, projectFile):
     self.data = {}
     self.code = {}
-    etiqueta = None
+    self.etiquetas = []
     f = open(projectFile)
     nline = 0
     for line in f:
@@ -56,10 +56,10 @@ class Project:
       if re.match('\[\s*\w+\s*\]',line):
         m = re.match('\[\s*(\w+)\s*\]',line).group(1)
         self.code[m] = []
-        etiqueta = m
+        self.etiquetas.append(m)
       elif line != '':
-        if etiqueta:
-          self.addCode(etiqueta, projectFile, nline, line)
+        if len(self.etiquetas) > 0:
+          self.addCode(self.etiquetas[-1], projectFile, nline, line)
         else:
           self.addData(projectFile, nline, line)
     f.close()
@@ -143,26 +143,26 @@ class Project:
           break
 
 
-  def ejectuta(self):
+  def ejecuta(self):
     while True:
       self.capitulo = raw_input('Nº del capítulo: ')
       if self.capitulo.isdigit():
         break
     print '\nTIQUETAS:'
-    etiquetas = self.code.keys()
     i = 0
-    while i < len(etiquetas):
-      print '  %d- %s' % (i, etiqueta[i])
+    while i < len(self.etiquetas):
+      print '  %d- %s' % (i, self.etiquetas[i])
       i += 1
     print 'Escribe el número de las etiquetas a ejecutar separadas por espacios'
     get = raw_input('>> ')
     lista = []
     for e in get.split(' '):
       if e.isdigit():
-        if int(e) >= 0 and int(e) < len(etiquetas) and int(e) not in lista:
+        if int(e) >= 0 and int(e) < len(self.etiquetas) and int(e) not in lista:
           lista.append(int(e))
-    for e in lista.sort():
-      self.execEtiqueta(etiquetas[e])
+    lista.sort()
+    for e in lista:
+      self.execEtiqueta(self.etiquetas[e])
 
 
 
