@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
+import sys, os
 import autosubsDownloader
 import autosubsTranslate
 import autosubsEncode
 
+FILEPROJECT_NAME = 'autosubs.project'
 
-ALLOWED_CODES=[#TODO reg.exp. para los códigos permitidos en el archivo del proyecto
+ALLOWED_CODES = [#TODO reg.exp. para los códigos permitidos en el archivo del proyecto
     'mkDir',
     'waitAndDownload\s+\w+$',
     'extractRAW\s+\w+\s+\w+$',
@@ -100,48 +101,74 @@ class Project:
 
   def execEtiqueta(etiqueta)
     for code in self.code[etiqueta]:
-      execCode(code):
+      self.execCode(code):
 
   def execCode(code):
     if code[0] == 'mkDir': # mkDir
       if not self.capitulo in os.listdir('./'):
         os.mkdir(self.capitulo)
     elif code[0] == 'waitAndDownload': # waitAndDownload
-      aux = autosubsDownloader.waitfile(getvar('serie'), \
-          getvar('fansub'), self.capitulo, \
-          getvar('size', None), getvar('patrones', None))
+      aux = autosubsDownloader.waitfile(self.getvar('serie'), \
+          self.getvar('fansub'), self.capitulo, \
+          self.getvar('size', None), self.getvar('patrones', None))
       name = autosubsDownloader.downloadtorrent(aux[1], self.capitulo)
-      savevar(code[1], name)
+      self.savevar(code[1], name)
     elif code[0] == 'extractRAW': # extractRAW
-      autosubsDownloader.mkv2raw(getvar(code[1]), getvar(code[2]), \
-          getvar('fps', None))
+      autosubsDownloader.mkv2raw(self.getvar(code[1]), self.getvar(code[2]), \
+          self.getvar('fps', None))
     elif code[0] == 'extractASS': # extractASS
-      autosubsDownloader.mkv2ass(getvar(code[1]), getvar(code[2]))
+      autosubsDownloader.mkv2ass(self.getvar(code[1]), self.getvar(code[2]))
     elif code[0] == 'translate': # translate
-      autosubsTranslate.asstranslate(getvar(code[1]), getvar(code[2]), \
-          getvar('langin', 'en'))
+      autosubsTranslate.asstranslate(self.getvar(code[1]), self.getvar(code[2]), \
+          self.getvar('langin', 'en'))
     elif code[0] == 'encode': # encode
-      resize =  getvar(code[6], None)
+      resize =  self.getvar(code[6], None)
       if resize:
         resize = resize.split('x')
-      autosubsEncode.encodeAvidemux(getvar(code[2]), getvar(code[3]), \
-          getvar(code[4]), getvar(code[1]), getvar(code[5], None), resize, \
-          getvar(code[7], None), getvar(code[8], True))
+      autosubsEncode.encodeAvidemux(self.getvar(code[2]), self.getvar(code[3]), \
+          self.getvar(code[4]), self.getvar(code[1]), self.getvar(code[5], None), resize, \
+          self.getvar(code[7], None), self.getvar(code[8], True))
     elif code[0] == 'mkvmerge': #mkvmerge
       files = []
       for var in code[2:]:
-        files = files + [getvar(var)]
-      autosubsEncode.mergeMkv(getvar(code[1]), files)
+        files = files + [self.getvar(var)]
+      autosubsEncode.mergeMkv(self.getvar(code[1]), files)
     elif code[0] == 'systemPAUSE': # systemPAUSE
       while True:
         if raw_input("PAUSADO, escriba 'continuar': ") == 'continuar':
           break
 
 
+  def ejectuta():
+    while True:
+      self.capitulo = raw_input('Nº del capítulo: ')
+      if self.capitulo.isdigit():
+        break
+    print '\nTIQUETAS:'
+    etiquetas = self.code.keys()
+    i = 0
+    while i < len(etiquetas):
+      print '  %d- %s' % (i, etiqueta[i])
+      i += 1
+    print 'Escribe el número de las etiquetas a ejecutar separadas por espacios'
+    get = raw_input('>> ')
+    lista = []
+    for e in get.split(' '):
+      if e.isdigit():
+        if int(e) >= 0 and int(e) < len(etiquetas) and int(e) not in lista:
+          lista.append(int(e))
+    for e in lista.sort():
+      self.execEtiqueta(etiquetas[e])
 
 
 
-
+if __file__ == '__main__':
+  f = os.path.join(os.path.abspath(os.getcwd()), FILEPROJECT_NAME)
+  if not os.path.isfile(f):
+    print >> sys.stderr, "No existe el archivo de proyecto '%s' en el directorio" % FILEPROJECT_NAME
+    exit(-2)
+  proyecto = Project(f)
+  proyecto.ejecuta()
 
 
 
