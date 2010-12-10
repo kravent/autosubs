@@ -145,10 +145,11 @@ class Project:
 
   def ejecuta(self):
     while True:
+      print '\nSerie: "%s"' % self.getvar('serie')
       self.capitulo = raw_input('Nº del capítulo: ')
       if self.capitulo.isdigit():
         break
-    print '\nTIQUETAS:'
+    print '\nETIQUETAS:'
     i = 0
     while i < len(self.etiquetas):
       print '  %d- %s' % (i, self.etiquetas[i])

@@ -23,14 +23,21 @@ def getNyaaTorrentsFile(serie, fansub, capitulo, size=None, otros_patrones=None)
     name = re.sub('<.*?>','',line).strip()
     dname = name.lower()
     url='http://www.nyaatorrents.org/?page=download&'+re.findall('tid=\d+',line)[0]
-    if (re.search('\['+fansub+'\]',dname) and re.search(serie,dname) and
-        re.search('\D'+capitulo+'\D',dname) and
-        ((not size) or re.search(size+'p',dname) or re.search('x'+size,dname))):
+    #if (re.search('\['+fansub+'\]',dname) and re.search(serie,dname) and
+    #    re.search('\D'+capitulo+'\D',dname) and
+    #    ((not size) or re.search(size+'p',dname) or re.search('x'+size,dname))):
+    if size:
+      encontrado = re.search('%s.*%s.*%s.*((%sp)|(\d[xX]%s))' % \
+          (fansub, serie, capitulo, size, size), dname)
+    else:
+      encontrado = re.search('%s.*%s.*%s' % (fansub, serie, capitulo), dname)
+    if encontrado:
       if otros_patrones:
         valido = True
         for patron in otros_patrones:
           if not re.search(patron,dname):
             valido = False
+            break
         if valido:
           return [name,url]
       else:
@@ -46,7 +53,6 @@ def waitfile(serie, fansub, capitulo, size=None, otros_patrones=None):
     if file:
       print 'ENCONTRADO "'+file[0]+'"'
       return file
-    print 'LINK NO DISPONIBLE'
     print time.strftime("%H:%M:%S", time.gmtime()),
     print 'LINK NO DISPONIBLE -> (esperando 10 min)'
     time.sleep(600)
