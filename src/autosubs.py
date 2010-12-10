@@ -109,7 +109,7 @@ class Project:
         os.mkdir(self.capitulo)
     elif code[0] == 'waitAndDownload': # waitAndDownload
       aux = autosubsDownloader.waitfile(self.getvar('serie'), \
-          self.getvar('fansub'), self.capitulo, \
+          self.getvar('fansubIngles'), self.capitulo, \
           self.getvar('size', None), self.getvar('patrones', None))
       name = autosubsDownloader.downloadtorrent(aux[1], self.capitulo)
       self.savevar(code[1], name)
