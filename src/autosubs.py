@@ -103,6 +103,9 @@ class Project:
     for code in self.code[etiqueta]:
       self.execCode(code)
 
+  def indir(f):
+    return os.paht.join(self.capitulo, f)
+
   def execCode(self, code):
     if code[0] == 'mkDir': # mkDir
       if not self.capitulo in os.listdir('./'):
@@ -114,13 +117,14 @@ class Project:
       name = autosubsDownloader.downloadtorrent(aux[1], self.capitulo)
       self.savevar(code[1], name)
     elif code[0] == 'extractRAW': # extractRAW
-      autosubsDownloader.mkv2raw(self.getvar(code[1]), self.getvar(code[2]), \
-          self.getvar('fps', None))
+      autosubsDownloader.mkv2raw(self.indir(self.getvar(code[1])), \
+          self.indir(self.getvar(code[2])), self.getvar('fps', None))
     elif code[0] == 'extractASS': # extractASS
-      autosubsDownloader.mkv2ass(self.getvar(code[1]), self.getvar(code[2]))
+      autosubsDownloader.mkv2ass(self.indir(self.getvar(code[1])), \
+          self.indir(self.getvar(code[2])))
     elif code[0] == 'translate': # translate
-      autosubsTranslate.asstranslate(self.getvar(code[1]), self.getvar(code[2]), \
-          self.getvar('langin', 'en'))
+      autosubsTranslate.asstranslate(self.indir(self.getvar(code[1])), \
+          self.indir(self.getvar(code[2])), self.getvar('langin', 'en'))
     elif code[0] == 'autotitle': # autotitle
       self.savevar(code[1], '[%s] %s - %s (%sp).%s' % (\
           self.getvar('fansubS'), self.getvar('serie'), self.capitulo, \
@@ -129,14 +133,15 @@ class Project:
       resize =  self.getvar(code[6], None)
       if resize:
         resize = resize.split('x')
-      autosubsEncode.encodeAvidemux(self.getvar(code[2]), self.getvar(code[3]), \
-          self.getvar(code[4]), self.getvar(code[1]), self.getvar(code[5], None), resize, \
+      autosubsEncode.encodeAvidemux(self.indir(self.getvar(code[2])), \
+          self.indir(self.getvar(code[3])), self.getvar(code[4]), \
+          self.getvar(code[1]), self.getvar(code[5], None), resize, \
           self.getvar(code[7], None), self.getvar(code[8], True))
     elif code[0] == 'mkvmerge': #mkvmerge
       files = []
       for var in code[2:]:
-        files = files + [self.getvar(var)]
-      autosubsEncode.mergeMkv(self.getvar(code[1]), files)
+        files.append(self.indir(self.getvar(var)))
+      autosubsEncode.mergeMkv(self.indir(self.getvar(code[1])), files)
     elif code[0] == 'systemPAUSE': # systemPAUSE
       while True:
         if raw_input("PAUSADO, escriba 'continuar': ") == 'continuar':
