@@ -104,7 +104,7 @@ class Project:
       self.execCode(code)
 
   def indir(self, f):
-    return os.paht.join(self.capitulo, f)
+    return os.path.join(self.capitulo, f)
 
   def execCode(self, code):
     if code[0] == 'mkDir': # mkDir
