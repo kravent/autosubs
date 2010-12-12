@@ -103,7 +103,7 @@ class Project:
     for code in self.code[etiqueta]:
       self.execCode(code)
 
-  def indir(f):
+  def indir(self, f):
     return os.paht.join(self.capitulo, f)
 
   def execCode(self, code):
