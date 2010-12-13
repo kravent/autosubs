@@ -1,0 +1,21 @@
+#El programa guarda en la variable cap el capítulo elegido por el usuario
+#Pon el código que se ejectutará siempre nada más cargar el proyecto al
+#principio del archivo antes de ninguna etiqueta y antes de elegir
+#el capítulo (por lo que la varíable capitulo todavía no está disponible)
+
+#Variables por defecto
+serie -> nombre de la serie
+dir -> directorio del proyecto
+subdirs -> subdirectorios a crear en la carpeta de cada capítulo
+
+#Separa el código por secciones que luego puedes ejecutar por separado
+label ETIQUETA
+#Crea una nueva variable
+tovar(var, valor)
+#Devuelve el valor de la variable var, o si no exixte valor_por_defecto
+getvar(var, [valor_por_defecto])
+#Pausa hasta que el usuario presione continuar
+pausa()
+
+
+
