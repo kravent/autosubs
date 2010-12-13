@@ -103,14 +103,15 @@ def pausa():
     if raw_input("PAUSADO, escriba 'continuar': ") == 'continuar':
       break
 
-
-
-
+def wait_and_download(size=None, otros_patrones=None):
+  autosubsDownloader.waitfile(getvar('serie'), getvar('fansubfrom'), \
+      getvar('capitulo'), getvar('size', None), getvar('patrones', None))
       
+def extractraw(file_from, raw_file):
+  autosubsDownloader.mkv2raw(file_from, raw_file, getvar('fps', None))
 
-
-
-
+def extractass(file_from, ass_file):
+  autosubsDownloader.mkv2ass(file_from, ass_file)
 
 
 

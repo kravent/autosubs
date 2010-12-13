@@ -19,6 +19,7 @@
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
+import sys
 import urllib
 import urllib2
 import cookielib
@@ -63,4 +64,4 @@ class UploadParser():
                 print "%d : %d" % (current,total)
 
 if __name__ == "__main__":
-        c = UploadParser("/home/elie/cli.png", "mierda")
+        c = UploadParser(sys.argv[1], sys.argv[2])

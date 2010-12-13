@@ -125,7 +125,7 @@ def mkv2raw(mkvfile, mkvrawfile, fps=None):
     return False
 
 
-def mkv2ass(mkvfile,assfile):
+def mkv2ass(mkvfile, assfile):
   assTrack=mkvGetTrack(mkvfile,'S_TEXT/ASS')
   cmd = "mkvextract tracks '%s' %s:'%s'" % (mkvfile, assTrack, assfile)
   process = subprocess.Popen(cmd,stdout=subprocess.PIPE,shell=True)
