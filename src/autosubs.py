@@ -133,9 +133,10 @@ def pausa():
       break
 
 def wait_and_download(size=None, otros_patrones=None):
-  autosubsDownloader.waitfile(getvar('serie'), getvar('fansubfrom'), \
+  torrent =autosubsDownloader.waitfile(getvar('serie'), getvar('fansubfrom'), \
       getvar('capitulo'), getvar('size', None), getvar('patrones', None))
-      
+  return downloadtorrent(torrent[1])
+
 def extractraw(file_from, raw_file):
   autosubsDownloader.mkv2raw(file_from, raw_file, getvar('fps', None))
 
