@@ -7,185 +7,139 @@ import autosubsDownloader
 import autosubsTranslate
 import autosubsEncode
 
-FILEPROJECT_NAME = 'autosubs.project'
-
-ALLOWED_CODES = [#TODO reg.exp. para los códigos permitidos en el archivo del proyecto
-    'mkDir',
-    'waitAndDownload\s+\w+$',
-    'extractRAW\s+\w+\s+\w+$',
-    'extractASS\s+\w+\s+\w+$',
-    'translate\s+\w+\s+\w+$',
-    'autotitle\s+\w+\s+\w+\s+\w+$',
-    'encode\s+((mp4)|(avi))\s+\w+\s+\w+\s+\d+\s+(\w+)|(\*)\s+(\d+x\d+)|(\*)\s+(\w+)|(\*)\s+(True)|(False)$',
-    'mkvmerge\s+\w+',
-    'systemPAUSE$'
-    ]
+# CLASES DE ERROR
 
 class Error(Exception):
   """Base class for exceptions in this module."""
   pass
 
+class NoVariableError(Error):
+  def __init__(self, variable):
+    self.variable = variable
+    print '\n  Se ha intentado acceder a la variable "%s" que no exixte' % variable
 
-class PharseError(Error):
-  def __init__(self, filee, nline, line):
-    self.filee = filee
-    self.nline = nline
-    self.line = line
-    print self.__str__()
-  def __str__(self):
-    return '\n  Project source file:\n    Line %d: %s' % (self.nline, self.line)
+# CARGA DE LOS DATOS DEL PROYECTO
 
-
-class ExecuteError(Error):
-  def __init__(self, description):
-    self.description = description
-  def __str__(self):
-    return '\n' + self.description
+$code = {}
+$data = {}
 
 
-class Project:
-  def __init__(self, projectFile):
-    self.data = {}
-    self.code = {}
-    self.etiquetas = []
-    f = open(projectFile)
-    nline = 0
-    for line in f:
-      nline += 1
-      line = line.strip()
-      if re.match('\[\s*\w+\s*\]',line):
-        m = re.match('\[\s*(\w+)\s*\]',line).group(1)
-        self.code[m] = []
-        self.etiquetas.append(m)
-      elif line != '':
-        if len(self.etiquetas) > 0:
-          self.addCode(self.etiquetas[-1], projectFile, nline, line)
-        else:
-          self.addData(projectFile, nline, line)
-    f.close()
-    #TODO pedir nº capitulo -> self.capitulo
-    #TODO pedir etiquetas a ejecutar
+RE_LABEL = 'label\s+(.+)'
 
-  def addData(self, filee, nline, line):
-    if re.match('\w+=',line):
-      line  = line.split('=',1)
-      self.data[line[0].strip()] = line[1].strip()
+def pharse(project_file):
+  f = open(project_file)
+  $code['__labels__'] = ['__init__']
+  $code['__init__'] = []
+  actual_label = '__init__'
+  for line in f.readline():
+    label = re.match(RE_LABEL, line)
+    if label:
+      label = label.group(1).strip()
+      if label not in code['__labels__']:
+        $code['__labels__'].append(label)
+        $code[label] = []
+      actual_label = label
     else:
-      raise PharseError(filee, nline, line)
+      $code[label].append(line)
+  f.close()
 
-  def addCode(self, etiqueta, filee, nline, line):
-    if self.isValidCode(line):
-      self.code[etiqueta].append(line.split(' '))
+def ejectuta(label):
+  if type(label) == int:
+    label = $code['__labels__'][label]
+  for line in $code[label]:
+    exec line
+
+def getcap():
+  'SERIE: %s' % getvar('serie')
+  while True:
+    capitulo = raw_input('Nº del capítulo: ')
+    if capitulo.isdigit():
+      break
+  tovar('capitulo', capitulo)
+
+def getlabels2exec():
+  print 'ETIQUETAS:'
+  for i in range(1,len($code['__labels__'])):
+    print '  %d- %s' % (i, $code['__labels__'])
+  print 'Escribe el número de las etiquetas a ejectuar'
+  get = raw_input('>> ')
+  salida = []
+  for palabra in get.split(' '):
+    if palabra.isdigit():
+      num = int(palabra)
+      if num > 0 and num <= len($code['__labels__'])
+        salida.append(num)
+  return salida
+
+def makecapdir():
+  root = getvar('dir','./')
+  d = os.path.join(root, getvar('capitulo'))
+  if not getvar('capitulo') in os.listdir(root):
+    os.mkdir(d)
+    for x in getvar('subdirs', [])
+      os.mkdir(os.path.join(d, x))
+
+
+
+# -----------------------------------------
+# | FUNCIONES UTILIZABLES POR EL PROYECTO |
+# -----------------------------------------
+
+def tovar(var, valor):
+  $data[var] = valor
+
+def getvar(var, valor_por_defecto='\0'):
+  if var not in $data:
+    if valor_por_defecto == '\0':
+      raise NoVariableError(var)
     else:
-      raise PharseError(filee, nline, line)
+      return valor_por_defecto
+  else:
+    return $data[var]
 
-  def isValidCode(self, line):
-    for exp in ALLOWED_CODES:
-      if re.match(exp, line):
-        return True
-    return False
+def pausa():
+  """Realiza una pausa en el programa hasta que el usuario escriba 'continuar'"""
+  while True:
+    if raw_input("PAUSADO, escriba 'continuar': ") == 'continuar':
+      break
 
-  def getvar(self, var, default=''):
-    """Si var=='*' o no existe en self.data devuelve default,
-    y si no devuelve self.data[var]."""
-    if var == '*' or (var != '' and not var in self.data):
-      return default
-    elif var in self.data:
-      return self.data[var]
-    else:
-      raise ExecuteError('No existe la variable "%s"' % var)
+def wait_and_download(size=None, otros_patrones=None):
+  autosubsDownloader.waitfile(getvar('serie'), getvar('fansubfrom'), \
+      getvar('capitulo'), getvar('size', None), getvar('patrones', None))
+      
+def extractraw(file_from, raw_file):
+  autosubsDownloader.mkv2raw(file_from, raw_file, getvar('fps', None))
 
-  def savevar(self, var, data):
-    """Guarda data en la variable var de self.data"""
-    self.data[var] = data
+def extractass(file_from, ass_file):
+  autosubsDownloader.mkv2ass(file_from, ass_file)
 
-  def execEtiqueta(self, etiqueta):
-    for code in self.code[etiqueta]:
-      self.execCode(code)
+def asstranslate(ass_from, ass_to, lang_from='en', lang_to='es'):
+  autosubsTranslate.asstranslate(ass_from, ass_to, lang_from, lang_to)
 
-  def indir(self, f):
-    return os.path.join(self.capitulo, f)
-
-  def execCode(self, code):
-    if code[0] == 'mkDir': # mkDir
-      if not self.capitulo in os.listdir('./'):
-        os.mkdir(self.capitulo)
-    elif code[0] == 'waitAndDownload': # waitAndDownload
-      aux = autosubsDownloader.waitfile(self.getvar('serie'), \
-          self.getvar('fansubIngles'), self.capitulo, \
-          self.getvar('size', None), self.getvar('patrones', None))
-      name = autosubsDownloader.downloadtorrent(aux[1], self.capitulo)
-      self.savevar(code[1], name)
-    elif code[0] == 'extractRAW': # extractRAW
-      autosubsDownloader.mkv2raw(self.indir(self.getvar(code[1])), \
-          self.indir(self.getvar(code[2])), self.getvar('fps', None))
-    elif code[0] == 'extractASS': # extractASS
-      autosubsDownloader.mkv2ass(self.indir(self.getvar(code[1])), \
-          self.indir(self.getvar(code[2])))
-    elif code[0] == 'translate': # translate
-      autosubsTranslate.asstranslate(self.indir(self.getvar(code[1])), \
-          self.indir(self.getvar(code[2])), self.getvar('langin', 'en'))
-    elif code[0] == 'autotitle': # autotitle
-      self.savevar(code[1], '[%s] %s - %s (%sp).%s' % (\
-          self.getvar('fansubS'), self.getvar('serie'), self.capitulo, \
-          code[2], code[3]))
-    elif code[0] == 'encode': # encode
-      resize =  self.getvar(code[6], None)
-      if resize:
-        resize = resize.split('x')
-      autosubsEncode.encodeAvidemux(self.indir(self.getvar(code[2])), \
-          self.indir(self.getvar(code[3])), self.getvar(code[4]), \
-          self.getvar(code[1]), self.getvar(code[5], None), resize, \
-          self.getvar(code[7], None), self.getvar(code[8], True))
-    elif code[0] == 'mkvmerge': #mkvmerge
-      files = []
-      for var in code[2:]:
-        files.append(self.indir(self.getvar(var)))
-      autosubsEncode.mergeMkv(self.indir(self.getvar(code[1])), files)
-    elif code[0] == 'systemPAUSE': # systemPAUSE
-      while True:
-        if raw_input("PAUSADO, escriba 'continuar': ") == 'continuar':
-          break
-
-
-  def ejecuta(self):
-    while True:
-      print '\nSerie: "%s"' % self.getvar('serie')
-      self.capitulo = raw_input('Nº del capítulo: ')
-      if self.capitulo.isdigit():
-        break
-    print '\nETIQUETAS:'
-    i = 0
-    while i < len(self.etiquetas):
-      print '  %d- %s' % (i, self.etiquetas[i])
-      i += 1
-    print 'Escribe el número de las etiquetas a ejecutar separadas por espacios'
-    get = raw_input('>> ')
-    lista = []
-    for e in get.split(' '):
-      if e.isdigit():
-        if int(e) >= 0 and int(e) < len(self.etiquetas) and int(e) not in lista:
-          lista.append(int(e))
-    lista.sort()
-    for e in lista:
-      self.execEtiqueta(self.etiquetas[e])
-
-
+def assdefaultstyle(ass_file, fontname='Arial', fontsize='30', \
+    primarycolour='&H00FFFFFF', secondarycolour='&H000000FF', \
+    outlinecolour='&H00000000', backcolour='&H00000000', bold='-1', \
+    italic='0', underline='0', strikeout='0', scalex='100', scaley='100', \
+    spacing='1', angle='0', borderstyle='1', outline='2', shadow='0', \
+    alignment='2', marginl='15', marginr='30', marginv='15', encoding='1'):
+  autosubsTranslate.assStyleClear(ass_file)
+  autosubsTranslate.assStyleSet(ass_file, 'Default', fontname, fontsize, \
+    primarycolour, secondarycolour, \
+    outlinecolour, backcolour, bold, \
+    italic, underline, strikeout, scalex, scaley, \
+    spacing, angle, borderstyle, outline, shadow, \
+    alignment, marginl, marginr, marginv, encoding)
 
 if __name__ == '__main__':
-  f = os.path.join(os.path.abspath(os.getcwd()), FILEPROJECT_NAME)
-  if not os.path.isfile(f):
-    print >> sys.stderr, "No existe el archivo de proyecto '%s' en el directorio" % FILEPROJECT_NAME
-    exit(-2)
-  proyecto = Project(f)
-  proyecto.ejecuta()
-
-
-
-
-#NOTE Integrar y ejecutar aquí texto de otro archivo
-#fp = open(file_to_include)
-#exec fp in globals()
-#fp.close()
-
+  if len(sys.argv) > 1:
+    project_file = sys.argv[1]
+  else:
+    project_file = 'autosubs.project'
+  pharse(project_file)
+  ejectuta('__init__')
+  getcap()
+  makecapdir()
+  labels = getlabels2exec()
+  for label in labels:
+    ejectuta(label)
 
