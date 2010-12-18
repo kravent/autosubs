@@ -113,8 +113,17 @@ def extractraw(file_from, raw_file):
 def extractass(file_from, ass_file):
   autosubsDownloader.mkv2ass(file_from, ass_file)
 
-def asstranslate(ass_from, ass_to, lang_from='en', lang_to='es'):
-  autosubsTranslate.asstranslate(ass_from, ass_to, lang_from, lang_to)
+def asstranslate(ass_from, ass_to):
+  langin = getvar('langin', None)
+  langout = getvar('langout', None)
+  if langin and langout:
+    autosubsTranslate.asstranslate(ass_from, ass_to, langin, langout)
+  elif langin:
+    autosubsTranslate.asstranslate(ass_from, ass_to, lang_from=langin)
+  elif langout:
+    autosubsTranslate.asstranslate(ass_from, ass_to, lang_to=langout)
+  else:
+    autosubsTranslate.asstranslate(ass_from, ass_to)
 
 def assdefaultstyle(ass_file, fontname='Arial', fontsize='30', \
     primarycolour='&H00FFFFFF', secondarycolour='&H000000FF', \

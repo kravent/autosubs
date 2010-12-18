@@ -35,7 +35,7 @@ extractraw(file_from, raw_file)
 #Extrae el archivo de subtitulos del vídeo
 extractass(file_from, ass_file)
 #Traduce un archivo ass
-asstranslate(ass_from, ass_to, lang_from='en', lang_to='es')
+asstranslate(ass_from, ass_to)
 #Elimina estilos del ass dejando por defecto lo indicado
 assdefaultstyle(ass_file, fontname='Arial', fontsize='30', \
     primarycolour='&H00FFFFFF', secondarycolour='&H000000FF', \
