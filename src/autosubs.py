@@ -44,10 +44,8 @@ def pharse(project_file):
         code['__labels__'].append(label)
         code[label] = []
       actual_label = label
-      print '****** %s *******' % label
     else:
       code[actual_label].append(line)
-      print line
 
 def ejectuta(label):
   global code
@@ -102,11 +100,11 @@ def getlabels2exec():
 def makecapdir():
   root = getvar('dir','./')
   d = os.path.join(root, getvar('capitulo'))
-  if not getvar('capitulo') in os.listdir(root):
+  if getvar('capitulo') not in os.listdir(root):
     os.mkdir(d)
   for x in getvar('subdirs', []):
     dd = os.path.join(d, x)
-    if not dd in os.listdir(d):
+    if dd not in os.listdir(d):
       os.mkdir(dd)
 
 
