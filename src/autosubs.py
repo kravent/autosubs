@@ -135,6 +135,9 @@ if __name__ == '__main__':
     project_file = sys.argv[1]
   else:
     project_file = 'autosubs.project'
+  if not os.isfile(project_file):
+    print >> sys.stderr, 'ERROR no existe el archivo de proyecto "%s"' % project_file
+    exit(-1)
   pharse(project_file)
   ejectuta('__init__')
   getcap()
