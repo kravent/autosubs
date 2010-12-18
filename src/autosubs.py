@@ -106,6 +106,8 @@ def makecapdir():
     if not os.path.lexists(dd):
       os.mkdir(dd)
 
+def addrootpath(path):
+  return os.path.join(getvar('dir', './'), getvar('capitulo'), path)
 
 
 # -----------------------------------------
@@ -132,20 +134,25 @@ def pausa():
     if raw_input("PAUSADO, escriba 'continuar': ") == 'continuar':
       break
 
-def wait_and_download(size=None, otros_patrones=None):
+def wait_and_download(size=None, subdir='', \
+    otros_patrones=None):
+  subdir = addrootpath(subdir)
   torrent =autosubsDownloader.waitfile(getvar('serie'), getvar('fansubfrom'), \
       getvar('capitulo'), getvar('size', None), getvar('patrones', None))
   return autosubsDownloader.downloadtorrent(torrent[1])
 
 def extractraw(file_from, raw_file):
-  autosubsDownloader.mkv2raw(file_from, raw_file, getvar('fps', None))
+  autosubsDownloader.mkv2raw(addrootpath(file_from), addrootpath(raw_file), \
+      getvar('fps', None))
 
 def extractass(file_from, ass_file):
-  autosubsDownloader.mkv2ass(file_from, ass_file)
+  autosubsDownloader.mkv2ass(addrootpath(file_from), addrootpath(ass_file))
 
 def asstranslate(ass_from, ass_to):
   langin = getvar('langin', None)
   langout = getvar('langout', None)
+  ass_from = addrootpath(ass_from)
+  ass_to = addrootpath(ass_to)
   if langin and langout:
     autosubsTranslate.asstranslate(ass_from, ass_to, langin, langout)
   elif langin:
@@ -161,6 +168,7 @@ def assdefaultstyle(ass_file, fontname='Arial', fontsize='30', \
     italic='0', underline='0', strikeout='0', scalex='100', scaley='100', \
     spacing='1', angle='0', borderstyle='1', outline='2', shadow='0', \
     alignment='2', marginl='15', marginr='30', marginv='15', encoding='1'):
+  ass_file = addrootpath(ass_file)
   autosubsTranslate.assStyleClear(ass_file)
   autosubsTranslate.assStyleSet(ass_file, 'Default', fontname, fontsize, \
     primarycolour, secondarycolour, \
