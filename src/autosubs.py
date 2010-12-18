@@ -98,13 +98,12 @@ def getlabels2exec():
   return salida
 
 def makecapdir():
-  root = getvar('dir','./')
-  d = os.path.join(root, getvar('capitulo'))
-  if getvar('capitulo') not in os.listdir(root):
+  d = os.path.join(getvar('dir', './'), getvar('capitulo'))
+  if not os.path.lexists(d):
     os.mkdir(d)
   for x in getvar('subdirs', []):
     dd = os.path.join(d, x)
-    if dd not in os.listdir(d):
+    if not os.path.lexists(dd):
       os.mkdir(dd)
 
 
