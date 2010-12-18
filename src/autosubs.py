@@ -43,7 +43,7 @@ def pharse(project_file):
         code[label] = []
       actual_label = label
     else:
-      code[label].append(line)
+      code[actual_label].append(line)
   f.close()
 
 def ejectuta(label):
@@ -72,7 +72,7 @@ def getlabels2exec():
   for palabra in get.split(' '):
     if palabra.isdigit():
       num = int(palabra)
-      if num > 0 and num <= len(code['__labels__'])
+      if num > 0 and num <= len(code['__labels__']):
         salida.append(num)
   return salida
 
@@ -81,7 +81,7 @@ def makecapdir():
   d = os.path.join(root, getvar('capitulo'))
   if not getvar('capitulo') in os.listdir(root):
     os.mkdir(d)
-  for x in getvar('subdirs', [])
+  for x in getvar('subdirs', []):
     dd = os.path.join(d, x)
     if not dd in os.listdir(d):
       os.mkdir(dd)
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     project_file = sys.argv[1]
   else:
     project_file = 'autosubs.project'
-  if not os.isfile(project_file):
+  if not os.path.isfile(project_file):
     print >> sys.stderr, 'ERROR no existe el archivo de proyecto "%s"' % project_file
     exit(-1)
   pharse(project_file)
