@@ -31,10 +31,12 @@ RE_LABEL = 'label\s+(.+)'
 def pharse(project_file):
   global code
   f = open(project_file)
+  lines = f.readlines()
+  f.close()
   code['__labels__'] = ['__init__']
   code['__init__'] = []
   actual_label = '__init__'
-  for line in f.readline():
+  for line in lines:
     label = re.match(RE_LABEL, line)
     if label:
       label = label.group(1).strip()
@@ -42,9 +44,10 @@ def pharse(project_file):
         code['__labels__'].append(label)
         code[label] = []
       actual_label = label
+      print '****** %s *******' % label
     else:
       code[actual_label].append(line)
-  f.close()
+      print line
 
 def ejectuta(label):
   global code
@@ -53,10 +56,10 @@ def ejectuta(label):
   for line in code[label]:
     try:
       exec line
-    except ValueError:
+    except:
       print >> sys.stderr, "ERROR en el archivo de proyecto:" 
-      print >> sys.stderr, "  línea del error: \"%s\"" % line
-      raise ValueError
+      print >> sys.stderr, "  línea del error: \"%s\"" % line.rstrip()
+      raise #Esto lanza la misma excepción que se acaba de producir
 
 def getcap():
   'SERIE: %s' % getvar('serie')
