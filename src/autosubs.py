@@ -20,33 +20,37 @@ class NoVariableError(Error):
 
 # CARGA DE LOS DATOS DEL PROYECTO
 
-$code = {}
-$data = {}
+global code
+global data
+code = {}
+data = {}
 
 
 RE_LABEL = 'label\s+(.+)'
 
 def pharse(project_file):
+  global code
   f = open(project_file)
-  $code['__labels__'] = ['__init__']
-  $code['__init__'] = []
+  code['__labels__'] = ['__init__']
+  code['__init__'] = []
   actual_label = '__init__'
   for line in f.readline():
     label = re.match(RE_LABEL, line)
     if label:
       label = label.group(1).strip()
       if label not in code['__labels__']:
-        $code['__labels__'].append(label)
-        $code[label] = []
+        code['__labels__'].append(label)
+        code[label] = []
       actual_label = label
     else:
-      $code[label].append(line)
+      code[label].append(line)
   f.close()
 
 def ejectuta(label):
+  global code
   if type(label) == int:
-    label = $code['__labels__'][label]
-  for line in $code[label]:
+    label = code['__labels__'][label]
+  for line in code[label]:
     exec line
 
 def getcap():
@@ -58,16 +62,17 @@ def getcap():
   tovar('capitulo', capitulo)
 
 def getlabels2exec():
+  global code
   print 'ETIQUETAS:'
-  for i in range(1,len($code['__labels__'])):
-    print '  %d- %s' % (i, $code['__labels__'])
+  for i in range(1,len(code['__labels__'])):
+    print '  %d- %s' % (i, code['__labels__'])
   print 'Escribe el número de las etiquetas a ejectuar'
   get = raw_input('>> ')
   salida = []
   for palabra in get.split(' '):
     if palabra.isdigit():
       num = int(palabra)
-      if num > 0 and num <= len($code['__labels__'])
+      if num > 0 and num <= len(code['__labels__'])
         salida.append(num)
   return salida
 
@@ -76,8 +81,10 @@ def makecapdir():
   d = os.path.join(root, getvar('capitulo'))
   if not getvar('capitulo') in os.listdir(root):
     os.mkdir(d)
-    for x in getvar('subdirs', [])
-      os.mkdir(os.path.join(d, x))
+  for x in getvar('subdirs', [])
+    dd = os.path.join(d, x)
+    if not dd in os.listdir(d):
+      os.mkdir(dd)
 
 
 
@@ -86,16 +93,18 @@ def makecapdir():
 # -----------------------------------------
 
 def tovar(var, valor):
-  $data[var] = valor
+  global data
+  data[var] = valor
 
 def getvar(var, valor_por_defecto='\0'):
-  if var not in $data:
+  global data
+  if var not in data:
     if valor_por_defecto == '\0':
       raise NoVariableError(var)
     else:
       return valor_por_defecto
   else:
-    return $data[var]
+    return data[var]
 
 def pausa():
   """Realiza una pausa en el programa hasta que el usuario escriba 'continuar'"""
