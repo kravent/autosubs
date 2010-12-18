@@ -73,15 +73,30 @@ def getlabels2exec():
   global code
   print 'ETIQUETAS:'
   for i in range(1,len(code['__labels__'])):
-    print '  %d- %s' % (i, code['__labels__'])
+    print '  %d- %s' % (i, code['__labels__'][i])
   print 'Escribe el número de las etiquetas a ejectuar'
   get = raw_input('>> ')
   salida = []
+  warnings = False
   for palabra in get.split(' '):
     if palabra.isdigit():
       num = int(palabra)
       if num > 0 and num <= len(code['__labels__']):
         salida.append(num)
+      else:
+        warnings = True
+        print 'warning: %d está fuera de rango' % num
+    else:
+      if palabra in code['__labels__']:
+        salida.append(palabra)
+      else:
+        warnings = True
+        print 'warning: la etiqueta "%s" no existe' % palabra
+  if warnings:
+    print 'Hay varias etiquetas no válidas que no se tendrán en cuenta.'
+    cont = raw_input("¿Desea continuar? (N/s): ").lower()
+    if cont != s:
+      exit(2)
   return salida
 
 def makecapdir():
