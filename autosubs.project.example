@@ -29,7 +29,7 @@ pausa()
 #Ejecuta otra etiqueta y luego continua por donde estaba
 ejectutar(etiqueta)
 #Espera a que se publique el archivo y lo descarga
-wait_and_download(size=None, otros_patrones=None)
+wait_and_download(size=None, otros_patrones=None) -> file_saved
 #Extrae el vídeo limpio sin adjuntos especificandole los fps si están definidos
 extractraw(file_from, raw_file)
 #Extrae el archivo de subtitulos del vídeo
