@@ -113,7 +113,22 @@ def extractraw(file_from, raw_file):
 def extractass(file_from, ass_file):
   autosubsDownloader.mkv2ass(file_from, ass_file)
 
+def asstranslate(ass_from, ass_to, lang_from='en', lang_to='es'):
+  autosubsTranslate.asstranslate(ass_from, ass_to, lang_from, lang_to)
 
+def assdefaultstyle(ass_file, fontname='Arial', fontsize='30', \
+    primarycolour='&H00FFFFFF', secondarycolour='&H000000FF', \
+    outlinecolour='&H00000000', backcolour='&H00000000', bold='-1', \
+    italic='0', underline='0', strikeout='0', scalex='100', scaley='100', \
+    spacing='1', angle='0', borderstyle='1', outline='2', shadow='0', \
+    alignment='2', marginl='15', marginr='30', marginv='15', encoding='1'):
+  autosubsTranslate.assStyleClear(ass_file)
+  autosubsTranslate.assStyleSet(ass_file, 'Default', fontname, fontsize, \
+    primarycolour, secondarycolour, \
+    outlinecolour, backcolour, bold, \
+    italic, underline, strikeout, scalex, scaley, \
+    spacing, angle, borderstyle, outline, shadow, \
+    alignment, marginl, marginr, marginv, encoding)
 
 if __name__ == '__main__':
   if len(sys.argv) > 1:

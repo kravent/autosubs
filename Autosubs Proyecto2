@@ -34,6 +34,23 @@ wait_and_download(size=None, otros_patrones=None)
 extractraw(file_from, raw_file)
 #Extrae el archivo de subtitulos del vídeo
 extractass(file_from, ass_file)
+#Traduce un archivo ass
+asstranslate(ass_from, ass_to, lang_from='en', lang_to='es')
+#Elimina estilos del ass dejando por defecto lo indicado
+assdefaultstyle(ass_file, fontname='Arial', fontsize='30', \
+    primarycolour='&H00FFFFFF', secondarycolour='&H000000FF', \
+    outlinecolour='&H00000000', backcolour='&H00000000', bold='-1', \
+    italic='0', underline='0', strikeout='0', scalex='100', scaley='100', \
+    spacing='1', angle='0', borderstyle='1', outline='2', shadow='0', \
+    alignment='2', marginl='15', marginr='30', marginv='15', encoding='1')
+
+
+
+
+
+
+
+
 
 
 
