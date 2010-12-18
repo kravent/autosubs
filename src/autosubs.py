@@ -51,7 +51,12 @@ def ejectuta(label):
   if type(label) == int:
     label = code['__labels__'][label]
   for line in code[label]:
-    exec line
+    try:
+      exec line
+    except ValueError:
+      print >> sys.stderr, "ERROR en el archivo de proyecto:" 
+      print >> sys.stderr, "  línea del error: \"%s\"" % line
+      raise ValueError
 
 def getcap():
   'SERIE: %s' % getvar('serie')
