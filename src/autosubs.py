@@ -137,8 +137,10 @@ def pausa():
 
 def wait_and_download(size=None, subdir='./', \
     otros_patrones=None):
-  torrent =autosubsDownloader.waitfile(getvar('serie'), getvar('fansubfrom'), \
-      getvar('capitulo'), getvar('size', None), getvar('patrones', None))
+  if not size:
+    size = getvar('size', None)
+  torrent = autosubsDownloader.waitfile(getvar('serie'), getvar('fansubfrom'), \
+      getvar('capitulo'), size, getvar('patrones', None))
   filename = autosubsDownloader.downloadtorrent(torrent[1], subdir)
   return os.path.join(subdir, filename)
 
