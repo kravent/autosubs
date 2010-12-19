@@ -100,9 +100,19 @@ def asstranslate(ass_in, ass_out, lang_from='en', lang_to='es'):
     line = re.sub('\{\\\\be\d+\}', '', line)
     m = re.search('Dialogue:((.*?,){9})(.*)', line)
     if m:
+      nerrors = 0
+      while True:
+        try:
+          traduction = gtranslate(m.group(3), lang_from, lang_to)
+          break
+        except:
+          nerrors += 1
+          if nerrors > 10:
+            traduction = '* ERROR AL TRADUCIR LA LÍNEA *'
+            break
       f_out.write('Dialogue:')
       f_out.write(m.group(1))
-      f_out.write(gtranslate(m.group(3), lang_from, lang_to))
+      f_out.write(traduction)
     else:
       f_out.write(line)
     f_out.write("\n")
