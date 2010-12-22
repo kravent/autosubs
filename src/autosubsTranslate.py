@@ -5,6 +5,8 @@ import urllib
 import copy
 import re
 import codecs
+import threading
+import time
 
 
 def htmldecode(text):
@@ -85,40 +87,136 @@ def gtranslate(text, lang_from='en', lang_to='es'):
     res = re.sub('</*span.*?>','',res.group(1))
     return mejoraformato(htmldecode(res))
 
+th_n = 0
+th_lista = []
+th_lbool = []
+th_loock = threading.Lock()
 
+def savelistafrases(lista):
+  global th_n
+  global th_lista
+  global th_lbool
+  th_n = len(lista)
+  th_lista = lista
+  th_lbool = []
+  for i in range(0, th_n):
+    th_lbool.append(0)
+
+def getnfrase():
+  global th_loock
+  global th_n
+  global th_lista
+  global th_lbool
+  th_loock.acquire()
+  res = None
+  for i in range(0, th_n):
+    if not th_lbool[i]:
+      th_lbool[i] = 1
+      res = i
+      break
+  th_loock.release()
+  return res
+
+def getfrase(n):
+  global th_lista
+  return th_lista[n]
+
+def savefrase(n, frase):
+  global th_loock
+  global th_lista
+  global th_lbool
+  th_loock.acquire()
+  th_lbool[n] = 2
+  th_lista[n] = frase
+  th_loock.release()
+
+def syncfrasestofile(fileobject):
+  global th_n
+  global th_lista
+  global th_lbool
+  ntraducidas = 0
+  traducir = True
+  for i in range(0, th_n):
+    if th_lbool[i] < 2:
+      traducir = False
+    elif th_lbool[i] >= 2:
+      ntraducidas += 1
+      if traducir and th_lbool[i] == 2:
+        fileobject.write(th_lista[i])
+        th_lbool[i] = 3
+  return ntraducidas
+
+NRECONECTIONS = 10
+RECONECTIONSLEEP = 15
+class ThreadTraduceFrases(threading.Thread):
+  def __init__(self, lang_from='en', lang_to='es'):
+    threading.Thread.__init__(self)
+    self.lang_from = lang_from
+    self.lang_to = lang_to
+  def run(self):
+    while True:
+      n = getnfrase()
+      if n == None:
+        break
+      line = getfrase(n).strip()
+      line = re.sub('\s*\\\\N\s*', ' ', line)
+      line = re.sub('\{\\\\be\d+\}', '', line)
+      m = re.search('Dialogue:((.*?,){9})(.*)', line)
+      if m:
+        nerrors = 0
+        while True:
+          try:
+            traduction = gtranslate(m.group(3), self.lang_from, self.lang_to)
+            break
+          except KeyboardInterrupt:
+            raise
+          except:
+            nerrors += 1
+            if nerrors > NRECONECTIONS:
+              traduction = u'* ERROR AL TRADUCIR LA LÍNEA *'
+              break
+            time.sleep(RECONECTIONSLEEP)
+        trad = u'Dialogue:' + m.group(1) + traduction
+      else:
+        trad = line
+      trad = trad + u'\n'
+      savefrase(n, trad)
+
+
+NTHREADS = 6
+REFRESHTIME = 1
 def asstranslate(ass_in, ass_out, lang_from='en', lang_to='es'):
+  global th_n
+  print 'Preparando traductor...',
+  sys.stdout.flush()
   f_in = codecs.open(ass_in, encoding='utf-8')
   lines = f_in.readlines()
-  n = len(lines)
   f_in.close()
-  f_out = codecs.open(ass_out, mode='w', encoding='utf-8')
-  for i in range(0, n):
-    print 'Traduciendo linea: %d/%d\r' % (i+1, n),
-    sys.stdout.flush()
-    line = lines[i].strip()
-    line = re.sub('\s*\\\\N\s*', ' ', line)
-    line = re.sub('\{\\\\be\d+\}', '', line)
-    m = re.search('Dialogue:((.*?,){9})(.*)', line)
-    if m:
-      nerrors = 0
-      while True:
-        try:
-          traduction = gtranslate(m.group(3), lang_from, lang_to)
-          break
-        except:
-          nerrors += 1
-          if nerrors > 10:
-            traduction = '* ERROR AL TRADUCIR LA LÍNEA *'
-            break
-      f_out.write('Dialogue:')
-      f_out.write(m.group(1))
-      f_out.write(traduction)
-    else:
-      f_out.write(line)
-    f_out.write("\n")
-  f_out.close()
-  print
+  savelistafrases(lines)
 
+  f_out = codecs.open(ass_out, mode='w', encoding='utf-8')
+  threads = []
+  for i in range(0, NTHREADS):
+    threads.append(ThreadTraduceFrases(lang_from, lang_to))
+  for th in threads:
+    th.start()
+  while True:
+    time.sleep(REFRESHTIME)
+    alive = True
+    for th in threads:
+      alive = alive and th.is_alive()
+    nlinea = syncfrasestofile(f_out)
+    print '\rTraducidas %d líneas de %d' % (nlinea, th_n),
+    sys.stdout.flush()
+    if not alive:
+      break
+  f_out.close()
+  print '\rTraducidas %d líneas de %d' % (th_n, th_n)
+
+
+####################
+#    ESTILOS ASS   #
+####################
 
 def assStyleClear(assfile):
   f = codecs.open(assfile, encoding='utf-8')
