@@ -3,6 +3,8 @@
 #principio del archivo antes de ninguna etiqueta y antes de elegir
 #el capítulo (por lo que la varíable capitulo todavía no está disponible)
 
+#Establece un fichero en el cual almacenar los mensajes de error
+logfile(filename)
 #Variables por defecto
 serie -> nombre de la serie
 dir -> directorio del proyecto

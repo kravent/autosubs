@@ -115,6 +115,9 @@ def makecapdir():
 # | FUNCIONES UTILIZABLES POR EL PROYECTO |
 # -----------------------------------------
 
+def logfile(filename):
+  sys.stderr = open(filename, 'w')
+
 def tovar(var, valor):
   global data
   data[var] = valor
