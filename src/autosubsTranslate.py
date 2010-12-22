@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
-import urllib
+import urllib, urllib2
 import copy
 import re
 import codecs
@@ -74,11 +74,12 @@ def mejoraformato(text):
   return text
 
 
+NRECONECTIONS = 10
+RECONECTIONSLEEP = 15
 def gtranslate(text, lang_from='en', lang_to='es'):
-    urllib.FancyURLopener.version = 'Mozilla/5.0 (X11; U; Linux i686; \
-        en-US; rv:1.9.0.1) Gecko/2008070400 SUSE/3.0.1-0.1 Firefox/3.0.1'
+  try:
     data = urllib.urlencode({'sl':lang_from, 'tl':lang_to, 'text':text.encode('utf-8')})
-    page = urllib.urlopen('http://translate.google.com/translate_t', data)
+    page = urllib2.urlopen('http://translate.google.com/translate_t', data)
     content = page.read().decode('utf-8')
     page.close()
     res = re.search('<.*?id=result_box.*?((<span.*?</span>)*)</span>',content)
@@ -86,6 +87,13 @@ def gtranslate(text, lang_from='en', lang_to='es'):
       res
     res = re.sub('</*span.*?>','',res.group(1))
     return mejoraformato(htmldecode(res))
+  except urllib2.HTTPError, e:  
+    print >> sys.stderr, '\nERROR al abrir la página' 
+    print >> sys.stderr, e.code
+  except urllib2.URLError, e:  
+    print >> sys.stderr, '\nERROR al abrir la página'
+    print >> sys.stderr, e.reason
+  return u'* ERROR AL TRADUCIR *'
 
 th_n = 0
 th_lista = []
@@ -146,8 +154,6 @@ def syncfrasestofile(fileobject):
         th_lbool[i] = 3
   return ntraducidas
 
-NRECONECTIONS = 10
-RECONECTIONSLEEP = 15
 class ThreadTraduceFrases(threading.Thread):
   def __init__(self, lang_from='en', lang_to='es'):
     threading.Thread.__init__(self)
@@ -163,19 +169,7 @@ class ThreadTraduceFrases(threading.Thread):
       line = re.sub('\{\\\\be\d+\}', '', line)
       m = re.search('Dialogue:((.*?,){9})(.*)', line)
       if m:
-        nerrors = 0
-        while True:
-          try:
-            traduction = gtranslate(m.group(3), self.lang_from, self.lang_to)
-            break
-          except KeyboardInterrupt:
-            raise
-          except:
-            nerrors += 1
-            if nerrors > NRECONECTIONS:
-              traduction = u'* ERROR AL TRADUCIR LA LÍNEA *'
-              break
-            time.sleep(RECONECTIONSLEEP)
+        traduction = gtranslate(m.group(3), self.lang_from, self.lang_to)
         trad = u'Dialogue:' + m.group(1) + traduction
       else:
         trad = line
