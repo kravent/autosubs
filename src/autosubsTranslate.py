@@ -93,7 +93,7 @@ def gtranslate(text, lang_from='en', lang_to='es'):
   except urllib2.URLError, e:  
     print >> sys.stderr, '\nERROR al abrir la página'
     print >> sys.stderr, e.reason
-  return u'* ERROR AL TRADUCIR *'
+  return None
 
 th_n = 0
 th_lista = []
@@ -170,6 +170,8 @@ class ThreadTraduceFrases(threading.Thread):
       m = re.search('Dialogue:((.*?,){9})(.*)', line)
       if m:
         traduction = gtranslate(m.group(3), self.lang_from, self.lang_to)
+        if not traduction:
+          traduction = u'* ERROR AL TRADUCIR *'
         trad = u'Dialogue:' + m.group(1) + traduction
       else:
         trad = line
@@ -177,7 +179,7 @@ class ThreadTraduceFrases(threading.Thread):
       savefrase(n, trad)
 
 
-NTHREADS = 6
+NTHREADS = 3
 REFRESHTIME = 1
 def asstranslate(ass_in, ass_out, lang_from='en', lang_to='es'):
   global th_n
