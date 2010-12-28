@@ -7,6 +7,7 @@ import re
 import codecs
 import threading
 import time
+import simplejson
 
 
 def htmldecode(text):
@@ -74,24 +75,26 @@ def mejoraformato(text):
   return text
 
 
+GTRANSLATOR_URL = 'http://ajax.googleapis.com/ajax/services/language/translate'
 NRECONECTIONS = 10
 RECONECTIONSLEEP = 15
 def gtranslate(text, lang_from='en', lang_to='es'):
   try:
-    data = urllib.urlencode({'sl':lang_from, 'tl':lang_to, 'text':text.encode('utf-8')})
-    page = urllib2.urlopen('http://translate.google.com/translate_t', data)
-    content = page.read().decode('utf-8')
-    page.close()
-    res = re.search('<.*?id=result_box.*?((<span.*?</span>)*)</span>',content)
-    if not res:
-      res
-    res = re.sub('</*span.*?>','',res.group(1))
-    return mejoraformato(htmldecode(res))
+    params = urllib.urlencode({'langpair': '%s|%s' % (lang_from, lang_to),
+             'v': '1.0',
+             'q': text.encode('ascii', 'xmlcharrefreplace')
+             })
+    resp = simplejson.load(urllib2.urlopen(GTRANSLATOR_URL, params))
+    if resp['responseStatus']==200:
+      return mejoraformato(resp['responseData']['translatedText'])
+    print >> sys.stderr, '\nERROR al traducir "%s"' % text.encode('ascii', 'xmlcharrefreplace')
+    print >> sys.stderr, '  responseStatus:', resp['responseStatus']
+    print >> sys.stderr, '  responseDetails:', resp['responseDetails']
   except urllib2.HTTPError, e:  
-    print >> sys.stderr, '\nERROR al abrir la página' 
+    print >> sys.stderr, '\nERROR al traducir "%s"' % text.encode('ascii', 'xmlcharrefreplace')
     print >> sys.stderr, e.code
   except urllib2.URLError, e:  
-    print >> sys.stderr, '\nERROR al abrir la página'
+    print >> sys.stderr, '\nERROR al traducir "%s"' % text.encode('ascii', 'xmlcharrefreplace')
     print >> sys.stderr, e.reason
   return None
 
@@ -99,6 +102,7 @@ th_n = 0
 th_lista = []
 th_lbool = []
 th_loock = threading.Lock()
+th_error = False
 
 def savelistafrases(lista):
   global th_n
@@ -155,12 +159,13 @@ def syncfrasestofile(fileobject):
   return ntraducidas
 
 class ThreadTraduceFrases(threading.Thread):
-  def __init__(self, lang_from='en', lang_to='es'):
+  def __init__(self, lang_from='', lang_to='es'):
     threading.Thread.__init__(self)
     self.lang_from = lang_from
     self.lang_to = lang_to
+    self.killed = False
   def run(self):
-    while True:
+    while not self.killed:
       n = getnfrase()
       if n == None:
         break
@@ -177,11 +182,13 @@ class ThreadTraduceFrases(threading.Thread):
         trad = line
       trad = trad + u'\n'
       savefrase(n, trad)
+  def stop(self):
+    self.killed = True
 
 
-NTHREADS = 3
+NTHREADS = 1
 REFRESHTIME = 1
-def asstranslate(ass_in, ass_out, lang_from='en', lang_to='es'):
+def asstranslate(ass_in, ass_out, lang_from='', lang_to='es', nthreads=NTHREADS):
   global th_n
   print 'Preparando traductor...',
   sys.stdout.flush()
@@ -192,20 +199,24 @@ def asstranslate(ass_in, ass_out, lang_from='en', lang_to='es'):
 
   f_out = codecs.open(ass_out, mode='w', encoding='utf-8')
   threads = []
-  for i in range(0, NTHREADS):
-    threads.append(ThreadTraduceFrases(lang_from, lang_to))
-  for th in threads:
-    th.start()
-  while True:
-    time.sleep(REFRESHTIME)
-    alive = True
+  try:
+    for i in range(0, NTHREADS):
+      threads.append(ThreadTraduceFrases(lang_from, lang_to))
     for th in threads:
-      alive = alive and th.is_alive()
-    nlinea = syncfrasestofile(f_out)
-    print '\rTraducidas %d líneas de %d' % (nlinea, th_n),
-    sys.stdout.flush()
-    if not alive:
-      break
+      th.start()
+    while True:
+      time.sleep(REFRESHTIME)
+      alive = True
+      for th in threads:
+        alive = alive and th.is_alive()
+      nlinea = syncfrasestofile(f_out)
+      print '\rTraducidas %d líneas de %d' % (nlinea, th_n),
+      sys.stdout.flush()
+      if not alive:
+        break
+  except:
+    for th in threads:
+      th.stop()
   f_out.close()
   print '\rTraducidas %d líneas de %d' % (th_n, th_n)
 
