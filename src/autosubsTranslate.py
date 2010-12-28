@@ -217,6 +217,7 @@ def asstranslate(ass_in, ass_out, lang_from='', lang_to='es', nthreads=NTHREADS)
   except:
     for th in threads:
       th.stop()
+    raise
   f_out.close()
   print '\rTraducidas %d líneas de %d' % (th_n, th_n)
 
