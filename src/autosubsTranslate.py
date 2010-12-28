@@ -176,7 +176,7 @@ class ThreadTraduceFrases(threading.Thread):
       if m:
         traduction = gtranslate(m.group(3), self.lang_from, self.lang_to)
         if not traduction:
-          traduction = u'* ERROR AL TRADUCIR *'
+          traduction = u'{ERROR AL TRADUCIR}%s' % m.group(3)
         trad = u'Dialogue:' + m.group(1) + traduction
       else:
         trad = line
